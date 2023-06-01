@@ -2,20 +2,93 @@
 
 {% block content %}
 <h1>Finch Details</h1>
-<div class="card">
-    <div class="card-content #212121 grey darken-4">
-        <span class="card-title">{{ finch.name }}</span>
-        <p class="">Species: {{ finch.species }}</p>
-        <p class="">Description: {{ finch.description }}</p>
-        {% if finch.age > 0 %}
-            <p class="">Age: {{ finch.age }}</p>
-        {% else %}
-            <p class="">Age: Chick</p>
-        {% endif %}
+<div class="row">
+    <div class="col s6">
+        <div class="card">
+            <div class="card-content #212121 grey darken-4">
+                <span class="card-title">{{ finch.name }}</span>
+                <p class="">Species: {{ finch.species }}</p>
+                <p class="">Description: {{ finch.description }}</p>
+                {% if finch.age > 0 %}
+                    <p class="">Age: {{ finch.age }}</p>
+                {% else %}
+                    <p class="">Age: Chick</p>
+                {% endif %}
+            </div>
+            <div class="card-action">
+                <a href="{% url 'finch_update' finch.id %}">Edit</a>
+                <a href="{% url 'finch_delete' finch.id %}">Delete</a>
+            </div>
+        </div>
     </div>
-    <div class="card-action">
-        <a href="{% url 'finch_update' finch.id %}">Edit</a>
-        <a href="{% url 'finch_delete' finch.id %}">Delete</a>
+    <div class="col s6">
+        <form action="{% url 'add_feeding' finch.id %}" method="POST">
+            {% csrf_token %}
+            {{ feeding_form.as_p }}
+            <input type="submit" class="btn" value="Add Feeding">
+        </form>
+        <table class="striped">
+            <thead>
+            <tr><th>Date</th><th>Meal</th></tr>
+            </thead>
+            <tbody>
+            {% for feeding in finch.feeding_set.all %}
+                <tr>
+                <td>{{feeding.date}}</td>
+                <td>{{feeding.get_meal_display}}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
+
+<style>
+/* Date picker background color */
+.datepicker-date-display,
+.datepicker-table,
+.datepicker-container {
+    background-color: #333;
+}
+
+/* Date picker text color */
+.datepicker-date-display,
+.select-dropdown,
+#id_date {
+    color: #fff;
+}
+
+/* Active date color */
+.datepicker-table td.is-selected {
+    background-color: #555;
+    color: #fff;
+}
+
+/* Hovered date color */
+.datepicker-table td.is-selected:hover {
+    background-color: #777;
+}
+
+/* Today's date color */
+.datepicker-table td.is-today {
+    background-color: #999;
+}
+</style>
+
+<script>
+    const dateEl = document.getElementById('id_date');
+    // M is Materialize's global variable
+    M.Datepicker.init(dateEl, {
+      format: 'yyyy-mm-dd',
+      defaultDate: new Date(),
+      setDefaultDate: true,
+      autoClose: true
+    });  
+  
+    const selectEl = document.getElementById('id_meal');
+    M.FormSelect.init(selectEl);
+</script>
+
+
+
 {% endblock %}
